@@ -20,10 +20,12 @@ searchBox.oninput=()=>{
 };
 
 searchBox.onkeydown=e=>{
+    if(!filtered.length) return;
+
     if(e.key==="ArrowDown") selectedIndex=(selectedIndex+1)%filtered.length;
     if(e.key==="ArrowUp") selectedIndex=(selectedIndex-1+filtered.length)%filtered.length;
+
     if(e.key==="Enter"){
-        if(!filtered.length) return;
         selectedProduct=filtered[selectedIndex];
         qtyBox.style.display="block";
         qtyBox.focus();
@@ -136,8 +138,11 @@ function accept(){
 
     localStorage.setItem("h", JSON.stringify(data));
 
-    resetCart();
+    // 🔥 FIX: najpierw render historii
     renderHistory();
+
+    // potem reset koszyka
+    resetCart();
 
     showToast("Zapisano: " + buyTotal + "$");
 }
@@ -183,7 +188,7 @@ ${list}
 📈 Zysk: ${profit}$`
     };
 
-    await fetch("https://discord.com/api/webhooks/1485770501107351562/ulmO4WHtRKKz7n0RMt9tkc6ZnHoZAlQyZIFTCuKk6BrXT0lhXiVXlpCNGUkaEDHaWhp7", {
+    await fetch("WEBHOOK_URL", {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({ embeds:[embed] })
