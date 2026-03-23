@@ -7,7 +7,7 @@ fetch("products.json")
 .then(res=>res.json())
 .then(data=>products=data);
 
-// --- SETTINGS 🔥 ---
+// --- SETTINGS ---
 settingsBtn.onclick = ()=>{
     settingsModal.style.display = "flex";
     discordIdInput.value = localStorage.getItem("discordId") || "";
@@ -116,19 +116,22 @@ function resetCart(){
     update();
 }
 
-// --- ACCEPT 🔥 (MENTION USERA)
+// --- ACCEPT (POPRAWIONE) 🔥
 async function accept(){
     let list = "";
     let sellTotal = 0;
+    let items = [];
 
     [...cart.rows].forEach((r,i)=>{
         if(i===0) return;
 
         const name = r.cells[0].innerText;
-        const qty = r.cells[1].innerText;
-        const sum = r.cells[3].innerText;
+        const qty = Number(r.cells[1].innerText);
 
-        list += `• ${name} x${qty} = ${sum}$\n`;
+        list += `• ${name} x${qty}\n`;
+
+        items.push({ name, qty });
+
         sellTotal += Number(r.dataset.sell);
     });
 
@@ -166,6 +169,7 @@ ${list}
     let data = JSON.parse(localStorage.getItem("h") || "[]");
 
     data.push({
+        items,
         buyTotal,
         sellTotal,
         date: new Date().toLocaleString()
@@ -179,20 +183,31 @@ ${list}
     showToast("Wysłano na Discord");
 }
 
-// --- SHIFT ---
+// --- SHIFT END (DODANY SPIS ITEMÓW) 🔥
 async function endShift(){
     const data = JSON.parse(localStorage.getItem("h") || "[]");
     if(!data.length) return;
 
     let totalBuy = 0;
     let totalSell = 0;
+    let combined = {};
 
     data.forEach(t=>{
         totalBuy += t.buyTotal;
         totalSell += t.sellTotal;
+
+        (t.items || []).forEach(i=>{
+            combined[i.name] = (combined[i.name] || 0) + i.qty;
+        });
+    });
+
+    let list = "";
+    Object.entries(combined).forEach(([name, qty])=>{
+        list += `• ${name} x${qty}\n`;
     });
 
     const profit = totalSell - totalBuy;
+
     const discordId = localStorage.getItem("discordId");
     const userTag = discordId ? `<@${discordId}>` : "Brak";
 
@@ -205,6 +220,9 @@ async function endShift(){
                 color: 0x000000,
                 description:
 `👤 Pracownik: ${userTag}
+
+📦 Przedmioty:
+${list || "Brak"}
 
 💰 Skup: ${totalBuy}$
 💸 Lombard: ${totalSell}$
