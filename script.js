@@ -89,6 +89,19 @@ function add(name,qty){
     r.insertCell().innerText = buy;
     r.insertCell().innerText = buy * qty;
 
+    // ❌ DELETE BUTTON
+    const delCell = r.insertCell();
+    const btn = document.createElement("button");
+    btn.innerText = "❌";
+    btn.className = "remove-btn";
+
+    btn.onclick = () => {
+        r.remove();
+        update();
+    };
+
+    delCell.appendChild(btn);
+
     r.dataset.sell = sell * qty;
 
     update();
@@ -112,11 +125,12 @@ function resetCart(){
         <th>Ilość</th>
         <th>Cena</th>
         <th>Suma</th>
+        <th></th>
     </tr>`;
     update();
 }
 
-// --- ACCEPT (POPRAWIONE) 🔥
+// --- ACCEPT ---
 async function accept(){
     let list = "";
     let sellTotal = 0;
@@ -183,7 +197,7 @@ ${list}
     showToast("Wysłano na Discord");
 }
 
-// --- SHIFT END (DODANY SPIS ITEMÓW) 🔥
+// --- SHIFT ---
 async function endShift(){
     const data = JSON.parse(localStorage.getItem("h") || "[]");
     if(!data.length) return;
