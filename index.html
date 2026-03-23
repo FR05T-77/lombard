@@ -13,11 +13,16 @@
 <div class="main">
 <h2>Kalkulator</h2>
 
+<!-- TOOLBAR -->
 <div class="toolbar">
-<button onclick="openSearch()">Dodaj</button>
-<button onclick="accept()">Akceptuj</button>
-<button onclick="resetCart()">Reset koszyk</button>
-<button onclick="resetHistory()">Reset historii</button>
+  <div class="left">
+    <button onclick="openSearch()">Dodaj</button>
+    <button onclick="accept()">Akceptuj</button>
+  </div>
+
+  <div class="right">
+    <button onclick="resetCart()">Reset koszyk</button>
+  </div>
 </div>
 
 <input id="searchBox" placeholder="Szukaj..." style="display:none;">
@@ -37,9 +42,16 @@ Skup: <b><span id="total">0</span>$</b>
 
 </div>
 
+<!-- PRAWA STRONA -->
 <div class="side">
-<h2>Transakcje</h2>
+
+<div class="side-header">
+  <h2>Transakcje</h2>
+  <button class="danger" onclick="resetHistory()">Reset historii</button>
+</div>
+
 <div id="historyList"></div>
+
 </div>
 
 </div>
@@ -59,7 +71,6 @@ Skup: <b><span id="total">0</span>$</b>
 </div>
 
 <div id="settingsBtn">⚙️</div>
-
 <div class="toast" id="toast"></div>
 
 <script src="script.js"></script>
