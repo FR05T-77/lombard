@@ -52,8 +52,9 @@ input {
     color:white;
 }
 
+/* 🔥 WIĘKSZY ODSTĘP */
 #qtyBox {
-    margin-top: 5px;
+    margin-top: 12px;
 }
 
 #results {
@@ -91,6 +92,12 @@ th:nth-child(4) {
     text-align: center;
 }
 
+/* 🔥 WĘŻSZA KOLUMNA X */
+td:last-child, th:last-child {
+    width: 40px;
+    text-align: center;
+}
+
 /* total */
 .total {
     margin-top: 15px;
@@ -121,6 +128,32 @@ th:nth-child(4) {
     background: #5a2a2a;
 }
 
+/* 🔥 LISTA TRANSAKCJI */
+.transaction {
+    padding: 12px;
+    background: linear-gradient(135deg, #1a1a1a, #222);
+    margin-bottom: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #2a2a2a;
+    transition: 0.2s;
+}
+
+.transaction:hover {
+    background: #2a2a2a;
+    transform: translateY(-2px);
+}
+
+.transaction strong {
+    display: block;
+    font-size: 15px;
+}
+
+.transaction span {
+    color: #4caf50;
+    font-weight: bold;
+}
+
 /* modal */
 .modal {
     position:fixed;
@@ -131,10 +164,29 @@ th:nth-child(4) {
     background:rgba(0,0,0,0.7);
 }
 
+/* 🔥 modal szczegółów */
 .modal-box {
     background:#1e1e1e;
     padding:20px;
     border-radius:10px;
+}
+
+.modal-box.details {
+    width: 400px;
+}
+
+/* 🔥 lista w modalu */
+.details-list {
+    margin-top: 10px;
+    line-height: 1.6;
+}
+
+/* 🔥 podsumowanie w modalu */
+.details-total {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #333;
+    font-weight: bold;
 }
 
 #settingsBtn {
