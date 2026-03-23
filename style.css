@@ -22,11 +22,9 @@ body {
     overflow:auto;
 }
 
-/* TOOLBAR */
 .toolbar {
     display:flex;
     justify-content:space-between;
-    align-items:center;
     margin-bottom:10px;
 }
 
@@ -36,7 +34,6 @@ body {
     gap:10px;
 }
 
-/* TRANSAKCJE HEADER */
 .side-header {
     display:flex;
     justify-content:space-between;
@@ -47,7 +44,7 @@ body {
 button {
     background:#2a2a2a;
     border:none;
-    padding:10px 14px;
+    padding:10px;
     border-radius:8px;
     color:#ddd;
     cursor:pointer;
@@ -58,6 +55,7 @@ button:hover { background:#3a3a3a; }
 button.danger {
     background:#3a1f1f;
 }
+
 button.danger:hover {
     background:#5a2a2a;
 }
@@ -65,83 +63,54 @@ button.danger:hover {
 input {
     width:100%;
     padding:12px;
+    background:#1e1e1e;
     border:none;
     border-radius:8px;
-    background:#1e1e1e;
     color:white;
-    margin-top:10px;
-}
-
-#results {
-    margin-top:10px;
-    max-height:220px;
-    overflow:auto;
 }
 
 .result {
     padding:10px;
     background:#1e1e1e;
-    margin-bottom:5px;
+    margin-top:5px;
     border-radius:6px;
 }
 
-.selected { background:#3a3a3a !important; }
+.selected { background:#3a3a3a; }
 
 table {
     width:100%;
-    margin-top:15px;
-    border-collapse:collapse;
+    margin-top:10px;
 }
 
 td, th {
     padding:10px;
     border-bottom:1px solid #2a2a2a;
-    text-align:center;
-}
-
-.total {
-    margin-top:15px;
-    font-size:20px;
-    text-align:right;
 }
 
 .transaction {
     padding:10px;
     background:#1a1a1a;
-    border-radius:6px;
     margin-bottom:8px;
+    border-radius:6px;
     cursor:pointer;
 }
-
-.transaction:hover { background:#2a2a2a; }
 
 .modal {
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.7);
     display:none;
-    align-items:center;
     justify-content:center;
+    align-items:center;
+    background:rgba(0,0,0,0.7);
 }
 
 .modal-box {
     background:#1e1e1e;
     padding:20px;
     border-radius:10px;
-    width:350px;
 }
 
-.toast {
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    background:#2a2a2a;
-    padding:10px;
-    border-radius:6px;
-    display:none;
-}
-
-/* SETTINGS */
 #settingsBtn {
     position:fixed;
     bottom:15px;
