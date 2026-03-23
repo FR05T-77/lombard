@@ -1,12 +1,12 @@
 let products = {};
 
 fetch("products.json")
-    .then(res => res.json())
-    .then(data => products = data);
+.then(res=>res.json())
+.then(data=>products=data);
 
-// --- SEARCH ---
 let filtered=[], selectedIndex=0, selectedProduct=null;
 
+// --- SEARCH ---
 function openSearch(){
     searchBox.style.display="block";
     searchBox.focus();
@@ -23,7 +23,6 @@ searchBox.onkeydown=e=>{
     if(e.key==="ArrowDown") selectedIndex=(selectedIndex+1)%filtered.length;
     if(e.key==="ArrowUp") selectedIndex=(selectedIndex-1+filtered.length)%filtered.length;
     if(e.key==="Enter"){
-        if(!filtered.length) return;
         selectedProduct=filtered[selectedIndex];
         qtyBox.style.display="block";
         qtyBox.focus();
@@ -42,6 +41,7 @@ function render(){
     });
 }
 
+// --- CART ---
 qtyBox.onkeydown=e=>{
     if(e.key==="Enter"){
         add(selectedProduct, qtyBox.value);
@@ -49,42 +49,30 @@ qtyBox.onkeydown=e=>{
         qtyBox.style.display="none";
         searchBox.value="";
         results.innerHTML="";
-        searchBox.focus();
     }
 };
 
-// --- CART ---
 function add(name,qty){
     qty=Number(qty);
-    if(!qty) return;
-
-    const buy = products[name].buy;
-    const sell = products[name].sell;
-
     const r=cart.insertRow();
 
     r.insertCell().innerText=name;
     r.insertCell().innerText=qty;
-    r.insertCell().innerText=buy;
-    r.insertCell().innerText=buy*qty;
+    r.insertCell().innerText=products[name].buy;
+    r.insertCell().innerText=products[name].buy*qty;
 
-    r.dataset.sell = sell * qty;
+    r.dataset.sell = products[name].sell * qty;
 
     update();
 }
 
 function update(){
-    let totalBuy = 0;
+    let totalBuy=0;
     [...cart.rows].forEach((r,i)=>{
         if(i===0)return;
-        totalBuy += Number(r.cells[3].innerText);
+        totalBuy+=Number(r.cells[3].innerText);
     });
-    total.innerText = totalBuy;
-}
-
-function resetCart(){
-    cart.innerHTML=`<tr><th>Produkt</th><th>Ilość</th><th>Cena</th><th>Suma</th></tr>`;
-    update();
+    total.innerText=totalBuy;
 }
 
 // --- ACCEPT ---
@@ -97,117 +85,95 @@ function accept(){
 
         items.push({
             name:r.cells[0].innerText,
-            qty:r.cells[1].innerText,
-            sum:r.cells[3].innerText
+            qty:Number(r.cells[1].innerText),
+            sum:Number(r.cells[3].innerText)
         });
 
-        sellTotal += Number(r.dataset.sell);
+        sellTotal+=Number(r.dataset.sell);
     });
 
-    if(items.length===0){
-        showToast("Koszyk pusty");
-        return;
-    }
+    const buyTotal=Number(total.innerText);
 
-    const buyTotal = Number(total.innerText);
+    let data=JSON.parse(localStorage.getItem("h")||"[]");
+    data.push({items,buyTotal,sellTotal});
+    localStorage.setItem("h",JSON.stringify(data));
 
-    navigator.clipboard.writeText(buyTotal);
-
-    let data = JSON.parse(localStorage.getItem("h") || "[]");
-
-    data.unshift({
-        items,
-        buyTotal,
-        sellTotal,
-        date:new Date().toLocaleString()
-    });
-
-    localStorage.setItem("h", JSON.stringify(data));
-
-    sendToDiscord(items, buyTotal, sellTotal);
-
-    renderHistory();
     resetCart();
-
-    showToast("Zapisano: "+buyTotal+"$");
+    renderHistory();
 }
 
-// --- HISTORY ---
-function renderHistory(){
-    const data = JSON.parse(localStorage.getItem("h") || "[]");
-    historyList.innerHTML="";
+// --- SHIFT END ---
+async function endShift(){
+    const data = JSON.parse(localStorage.getItem("h")||"[]");
+    if(!data.length) return;
+
+    let combined = {};
+    let totalBuy=0;
+    let totalSell=0;
 
     data.forEach(t=>{
-        const d=document.createElement("div");
-        d.className="transaction";
-        d.innerText=`${t.date} | Skup: ${t.buyTotal}$ | Lombard: ${t.sellTotal}$`;
-        d.onclick=()=>openModal(t);
-        historyList.appendChild(d);
-    });
-}
+        totalBuy+=t.buyTotal;
+        totalSell+=t.sellTotal;
 
-function resetHistory(){
-    if(!confirm("Usunąć historię?")) return;
+        t.items.forEach(i=>{
+            if(!combined[i.name]) combined[i.name]=0;
+            combined[i.name]+=i.qty;
+        });
+    });
+
+    let list="";
+    for(let name in combined){
+        list += `${name} x${combined[name]}\n`;
+    }
+
+    const profit = totalSell - totalBuy;
+    const discordId = localStorage.getItem("discordId")||"";
+
+    const embed = {
+        title: "Zakończenie zmiany",
+        color: 0x000000,
+        description:
+`👤 Pracownik: ${discordId ? `<@${discordId}>` : "Brak"}
+
+📦 Przedmioty:
+${list}
+
+💰 Skup: ${totalBuy}$
+💸 Lombard: ${totalSell}$
+📈 Zysk: ${profit}$`
+    };
+
+    await fetch("https://discord.com/api/webhooks/1485770501107351562/ulmO4WHtRKKz7n0RMt9tkc6ZnHoZAlQyZIFTCuKk6BrXT0lhXiVXlpCNGUkaEDHaWhp7", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ embeds:[embed] })
+    });
+
     localStorage.removeItem("h");
     renderHistory();
 }
 
-// --- MODAL ---
-function openModal(t){
-    modal.style.display="flex";
-
-    let html="<h3>Transakcja</h3>";
-
-    t.items.forEach(i=>{
-        html+=`${i.name} x${i.qty} = ${i.sum}$<br>`;
+// --- HISTORY ---
+function renderHistory(){
+    const data=JSON.parse(localStorage.getItem("h")||"[]");
+    historyList.innerHTML="";
+    data.forEach(t=>{
+        const d=document.createElement("div");
+        d.className="transaction";
+        d.innerText=`Skup: ${t.buyTotal}$ | Lombard: ${t.sellTotal}$`;
+        historyList.appendChild(d);
     });
-
-    html+=`<hr>Skup: ${t.buyTotal}$<br>Lombard: ${t.sellTotal}$`;
-
-    modalContent.innerHTML=html;
 }
 
-modal.onclick=()=>modal.style.display="none";
-
 // --- SETTINGS ---
-settingsBtn.onclick = () => {
+settingsBtn.onclick=()=>{
     settingsModal.style.display="flex";
-    discordIdInput.value = localStorage.getItem("discordId") || "";
+    discordIdInput.value=localStorage.getItem("discordId")||"";
 };
 
 function saveSettings(){
-    localStorage.setItem("discordId", discordIdInput.value.trim());
+    localStorage.setItem("discordId",discordIdInput.value);
     settingsModal.style.display="none";
-    showToast("Zapisano ID");
-}
-
-// --- DISCORD ---
-async function sendToDiscord(items, buyTotal, sellTotal){
-    const id = localStorage.getItem("discordId") || "";
-
-    let content = id ? `<@${id}>\n` : "";
-    content += "**Nowa transakcja:**\n";
-
-    items.forEach(i=>{
-        content += `• ${i.name} x${i.qty} = ${i.sum}$\n`;
-    });
-
-    content += `\n💰 Skup: ${buyTotal}$\n💸 Lombard: ${sellTotal}$`;
-
-    try {
-        await fetch("https://discord.com/api/webhooks/1485761128217837568/Y6UHCNADaxG0Y_OJ5KR2uwSjlZN9qBk5EDy_YZdfLtYfkn15YIyKDCZIWTX1wB2kS0eW", {
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body: JSON.stringify({ content })
-        });
-    } catch(e){}
-}
-
-// --- TOAST ---
-function showToast(msg){
-    toast.innerText=msg;
-    toast.style.display="block";
-    setTimeout(()=>toast.style.display="none",2000);
 }
 
 renderHistory();
