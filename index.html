@@ -13,7 +13,6 @@
 <div class="main">
 <h2>Kalkulator</h2>
 
-<!-- TOOLBAR -->
 <div class="toolbar">
   <div class="left">
     <button onclick="openSearch()">Dodaj</button>
@@ -32,7 +31,7 @@
 
 <table id="cart">
 <tr>
-<th>Produkt</th><th>Ilość</th><th>Cena (skup)</th><th>Suma</th>
+<th>Produkt</th><th>Ilość</th><th>Cena</th><th>Suma</th>
 </tr>
 </table>
 
@@ -42,12 +41,11 @@ Skup: <b><span id="total">0</span>$</b>
 
 </div>
 
-<!-- PRAWA STRONA -->
 <div class="side">
 
 <div class="side-header">
   <h2>Transakcje</h2>
-  <button class="danger" onclick="resetHistory()">Reset historii</button>
+  <button class="danger" onclick="endShift()">Zakończ zmianę</button>
 </div>
 
 <div id="historyList"></div>
@@ -56,7 +54,6 @@ Skup: <b><span id="total">0</span>$</b>
 
 </div>
 
-<!-- MODALE -->
 <div class="modal" id="modal">
 <div class="modal-box" id="modalContent"></div>
 </div>
