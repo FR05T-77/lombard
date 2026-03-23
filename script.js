@@ -89,7 +89,6 @@ function add(name,qty){
     r.insertCell().innerText = buy;
     r.insertCell().innerText = buy * qty;
 
-    // ❌ DELETE BUTTON
     const delCell = r.insertCell();
     const btn = document.createElement("button");
     btn.innerText = "❌";
@@ -143,7 +142,6 @@ async function accept(){
         const qty = Number(r.cells[1].innerText);
 
         list += `• ${name} x${qty}\n`;
-
         items.push({ name, qty });
 
         sellTotal += Number(r.dataset.sell);
@@ -251,7 +249,7 @@ ${list || "Brak"}
     showToast("Zmiana zakończona");
 }
 
-// --- HISTORY ---
+// --- HISTORY (🔥 CLICK MODAL) ---
 function renderHistory(){
     const data = JSON.parse(localStorage.getItem("h") || "[]");
     historyList.innerHTML = "";
@@ -259,9 +257,49 @@ function renderHistory(){
     data.forEach(t=>{
         const d = document.createElement("div");
         d.className = "transaction";
-        d.innerText = `${t.date} | ${t.buyTotal}$`;
+
+        d.innerHTML = `
+            <strong>${t.date}</strong>
+            <span>${t.buyTotal}$</span>
+        `;
+
+        // 🔥 CLICK → modal
+        d.onclick = ()=>{
+            showDetails(t);
+        };
+
         historyList.appendChild(d);
     });
+}
+
+// --- MODAL SZCZEGÓŁY 🔥 ---
+function showDetails(t){
+    let list = "";
+
+    (t.items || []).forEach(i=>{
+        list += `• ${i.name} x${i.qty}<br>`;
+    });
+
+    modalContent.innerHTML = `
+        <div class="modal-box details">
+            <h3>Szczegóły transakcji</h3>
+
+            <div class="details-list">
+                ${list || "Brak"}
+            </div>
+
+            <div class="details-total">
+                💰 Skup: ${t.buyTotal}$<br>
+                💸 Lombard: ${t.sellTotal}$<br>
+                📈 Zysk: ${t.sellTotal - t.buyTotal}$
+            </div>
+
+            <br>
+            <button onclick="modal.style.display='none'">Zamknij</button>
+        </div>
+    `;
+
+    modal.style.display = "flex";
 }
 
 // --- TOAST ---
