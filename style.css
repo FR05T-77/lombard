@@ -69,11 +69,20 @@ input {
     color:white;
 }
 
+/* 🔥 FIX: scroll dla wyników */
+#results {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-top: 5px;
+    border-radius: 8px;
+}
+
 .result {
     padding:10px;
     background:#1e1e1e;
     margin-top:5px;
     border-radius:6px;
+    cursor:pointer;
 }
 
 .selected { background:#3a3a3a; }
