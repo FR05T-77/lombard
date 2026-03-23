@@ -22,11 +22,26 @@ body {
     overflow:auto;
 }
 
+/* TOOLBAR */
 .toolbar {
     display:flex;
-    gap:10px;
+    justify-content:space-between;
+    align-items:center;
     margin-bottom:10px;
-    flex-wrap:wrap;
+}
+
+.toolbar .left,
+.toolbar .right {
+    display:flex;
+    gap:10px;
+}
+
+/* TRANSAKCJE HEADER */
+.side-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
 }
 
 button {
@@ -39,6 +54,13 @@ button {
 }
 
 button:hover { background:#3a3a3a; }
+
+button.danger {
+    background:#3a1f1f;
+}
+button.danger:hover {
+    background:#5a2a2a;
+}
 
 input {
     width:100%;
@@ -119,7 +141,7 @@ td, th {
     display:none;
 }
 
-/* ⚙️ */
+/* SETTINGS */
 #settingsBtn {
     position:fixed;
     bottom:15px;
