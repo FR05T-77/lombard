@@ -1,13 +1,13 @@
 let products = {};
 
-const WEBHOOK_TRANSACTION = "https://discord.com/api/webhooks/1485761128217837568/Y6UHCNADaxG0Y_OJ5KR2uwSjlZN9qBk5EDy_YZdfLtYfkn15YIyKDCZIWTX1wB2kS0eW";
-const WEBHOOK_SHIFT = "https://discord.com/api/webhooks/1485770501107351562/ulmO4WHtRKKz7n0RMt9tkc6ZnHoZAlQyZIFTCuKk6BrXT0lhXiVXlpCNGUkaEDHaWhp7";
+const WEBHOOK_TRANSACTION = "TWÓJ_WEBHOOK";
+const WEBHOOK_SHIFT = "TWÓJ_WEBHOOK";
 
 fetch("products.json")
 .then(res=>res.json())
 .then(data=>products=data);
 
-// --- SETTINGS ---
+// SETTINGS
 settingsBtn.onclick = ()=>{
     settingsModal.style.display = "flex";
     discordIdInput.value = localStorage.getItem("discordId") || "";
@@ -19,7 +19,7 @@ function saveSettings(){
     showToast("Zapisano ID");
 }
 
-// --- SEARCH ---
+// SEARCH
 let filtered=[], selectedIndex=0, selectedProduct=null;
 
 function openSearch(){
@@ -63,7 +63,7 @@ function render(){
     });
 }
 
-// --- CART ---
+// CART
 qtyBox.onkeydown=e=>{
     if(e.key==="Enter"){
         add(selectedProduct, qtyBox.value);
@@ -92,8 +92,6 @@ function add(name,qty){
     const delCell = r.insertCell();
     const btn = document.createElement("button");
     btn.innerText = "❌";
-    btn.className = "remove-btn";
-
     btn.onclick = () => {
         r.remove();
         update();
@@ -108,13 +106,17 @@ function add(name,qty){
 
 function update(){
     let totalBuy = 0;
+    let totalSell = 0;
 
     [...cart.rows].forEach((r,i)=>{
         if(i===0) return;
+
         totalBuy += Number(r.cells[3].innerText);
+        totalSell += Number(r.dataset.sell);
     });
 
-    total.innerText = totalBuy;
+    buyTotal.innerText = totalBuy;
+    sellTotal.innerText = totalSell;
 }
 
 function resetCart(){
@@ -129,10 +131,9 @@ function resetCart(){
     update();
 }
 
-// --- ACCEPT ---
+// ACCEPT
 async function accept(){
     let list = "";
-    let sellTotal = 0;
     let items = [];
 
     [...cart.rows].forEach((r,i)=>{
@@ -143,8 +144,6 @@ async function accept(){
 
         list += `• ${name} x${qty}\n`;
         items.push({ name, qty });
-
-        sellTotal += Number(r.dataset.sell);
     });
 
     if(!list){
@@ -152,8 +151,22 @@ async function accept(){
         return;
     }
 
-    const buyTotal = Number(total.innerText);
-    const profit = sellTotal - buyTotal;
+    const buy = Number(buyTotal.innerText);
+    const sell = Number(sellTotal.innerText);
+    const custom = Number(customPrice.value);
+
+    if(!custom){
+        showToast("Podaj cenę");
+        return;
+    }
+
+    if(custom > sell){
+        showToast("Cena > lombard!");
+        return;
+    }
+
+    const profit = sell - custom;
+    const negotiation = custom - buy;
 
     const discordId = localStorage.getItem("discordId");
     const userTag = discordId ? `<@${discordId}>` : "Brak";
@@ -171,8 +184,11 @@ async function accept(){
 📦 Przedmioty:
 ${list}
 
-💰 Skup: ${buyTotal}$
-💸 Lombard: ${sellTotal}$
+💰 Skup: ${buy}$
+💸 Lombard: ${sell}$
+💵 Sprzedaż: ${custom}$
+
+📉 Negocjacja: ${negotiation}$
 📈 Zysk: ${profit}$`
             }]
         })
@@ -182,8 +198,9 @@ ${list}
 
     data.push({
         items,
-        buyTotal,
-        sellTotal,
+        buyTotal: buy,
+        sellTotal: sell,
+        final: custom,
         date: new Date().toLocaleString()
     });
 
@@ -191,34 +208,23 @@ ${list}
 
     renderHistory();
     resetCart();
+    customPrice.value="";
 
-    showToast("Wysłano na Discord");
+    showToast("Wysłano");
 }
 
-// --- SHIFT ---
+// SHIFT (bez zmian logiki)
 async function endShift(){
     const data = JSON.parse(localStorage.getItem("h") || "[]");
     if(!data.length) return;
 
     let totalBuy = 0;
     let totalSell = 0;
-    let combined = {};
 
     data.forEach(t=>{
         totalBuy += t.buyTotal;
         totalSell += t.sellTotal;
-
-        (t.items || []).forEach(i=>{
-            combined[i.name] = (combined[i.name] || 0) + i.qty;
-        });
     });
-
-    let list = "";
-    Object.entries(combined).forEach(([name, qty])=>{
-        list += `• ${name} x${qty}\n`;
-    });
-
-    const profit = totalSell - totalBuy;
 
     const discordId = localStorage.getItem("discordId");
     const userTag = discordId ? `<@${discordId}>` : "Brak";
@@ -229,27 +235,21 @@ async function endShift(){
         body: JSON.stringify({
             embeds: [{
                 title: "Zakończenie zmiany",
-                color: 0x000000,
                 description:
-`👤 Pracownik: ${userTag}
-
-📦 Przedmioty:
-${list || "Brak"}
+`👤 ${userTag}
 
 💰 Skup: ${totalBuy}$
 💸 Lombard: ${totalSell}$
-📈 Zysk: ${profit}$`
+📈 Zysk: ${totalSell-totalBuy}$`
             }]
         })
     });
 
     localStorage.removeItem("h");
     renderHistory();
-
-    showToast("Zmiana zakończona");
 }
 
-// --- HISTORY (🔥 CLICK MODAL) ---
+// HISTORY
 function renderHistory(){
     const data = JSON.parse(localStorage.getItem("h") || "[]");
     historyList.innerHTML = "";
@@ -260,10 +260,9 @@ function renderHistory(){
 
         d.innerHTML = `
             <strong>${t.date}</strong>
-            <span>${t.buyTotal}$</span>
+            <span>${t.final || t.sellTotal}$</span>
         `;
 
-        // 🔥 CLICK → modal
         d.onclick = ()=>{
             showDetails(t);
         };
@@ -272,7 +271,7 @@ function renderHistory(){
     });
 }
 
-// --- MODAL SZCZEGÓŁY 🔥 ---
+// MODAL
 function showDetails(t){
     let list = "";
 
@@ -282,27 +281,21 @@ function showDetails(t){
 
     modalContent.innerHTML = `
         <div class="modal-box details">
-            <h3>Szczegóły transakcji</h3>
+            <h3>Szczegóły</h3>
 
-            <div class="details-list">
-                ${list || "Brak"}
-            </div>
-
-            <div class="details-total">
-                💰 Skup: ${t.buyTotal}$<br>
-                💸 Lombard: ${t.sellTotal}$<br>
-                📈 Zysk: ${t.sellTotal - t.buyTotal}$
-            </div>
+            ${list}
 
             <br>
-            <button onclick="modal.style.display='none'">Zamknij</button>
+            💰 Skup: ${t.buyTotal}$<br>
+            💸 Lombard: ${t.sellTotal}$<br>
+            💵 Sprzedaż: ${t.final || t.sellTotal}$<br>
         </div>
     `;
 
     modal.style.display = "flex";
 }
 
-// --- TOAST ---
+// TOAST
 function showToast(msg){
     toast.innerText = msg;
     toast.classList.add("show");
@@ -312,5 +305,4 @@ function showToast(msg){
     },2000);
 }
 
-// INIT
 renderHistory();
