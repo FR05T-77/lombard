@@ -223,3 +223,9 @@ td:last-child, th:last-child {
     opacity: 1;
     transform: translateY(0);
 }
+
+#customPrice {
+    margin-top:10px;
+    text-align:center;
+    font-size:18px;
+}
