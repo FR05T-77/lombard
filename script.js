@@ -1,5 +1,9 @@
 let products = {};
 
+// 🔥 DWA WEBHOOKI
+const WEBHOOK_TRANSACTION = "https://discord.com/api/webhooks/1485761128217837568/Y6UHCNADaxG0Y_OJ5KR2uwSjlZN9qBk5EDy_YZdfLtYfkn15YIyKDCZIWTX1wB2kS0eW";
+const WEBHOOK_SHIFT = "https://discord.com/api/webhooks/1485770501107351562/ulmO4WHtRKKz7n0RMt9tkc6ZnHoZAlQyZIFTCuKk6BrXT0lhXiVXlpCNGUkaEDHaWhp7";
+
 fetch("products.json")
 .then(res=>res.json())
 .then(data=>products=data);
@@ -101,19 +105,22 @@ function resetCart(){
     update();
 }
 
-// --- ACCEPT ---
-function accept(){
+// --- ACCEPT (TRANSAKCJA) 🔥
+async function accept(){
     let items = [];
     let sellTotal = 0;
+    let list = "";
 
     [...cart.rows].forEach((r,i)=>{
         if(i===0) return;
 
-        items.push({
-            name: r.cells[0].innerText,
-            qty: Number(r.cells[1].innerText),
-            sum: Number(r.cells[3].innerText)
-        });
+        const name = r.cells[0].innerText;
+        const qty = Number(r.cells[1].innerText);
+        const sum = Number(r.cells[3].innerText);
+
+        items.push({ name, qty, sum });
+
+        list += `• ${name} x${qty} = ${sum}$\n`;
 
         sellTotal += Number(r.dataset.sell);
     });
@@ -124,9 +131,27 @@ function accept(){
     }
 
     const buyTotal = Number(total.innerText);
+    const profit = sellTotal - buyTotal;
 
-    navigator.clipboard.writeText(buyTotal);
+    // 📤 WEBHOOK TRANSAKCJI (EMBED jak screen)
+    await fetch(WEBHOOK_TRANSACTION, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+            embeds: [{
+                title: "Nowa transakcja:",
+                color: 0x2b2d31,
+                description:
+`${list}
 
+💰 Skup: ${buyTotal}$
+💸 Lombard: ${sellTotal}$
+📈 Zysk: ${profit}$`
+            }]
+        })
+    });
+
+    // zapis historii
     let data = JSON.parse(localStorage.getItem("h") || "[]");
 
     data.push({
@@ -138,16 +163,13 @@ function accept(){
 
     localStorage.setItem("h", JSON.stringify(data));
 
-    // 🔥 FIX: najpierw render historii
     renderHistory();
-
-    // potem reset koszyka
     resetCart();
 
-    showToast("Zapisano: " + buyTotal + "$");
+    showToast("Transakcja wysłana");
 }
 
-// --- SHIFT END ---
+// --- SHIFT END (DRUGI WEBHOOK) ---
 async function endShift(){
     const data = JSON.parse(localStorage.getItem("h") || "[]");
     if(!data.length) return;
@@ -157,41 +179,37 @@ async function endShift(){
     let totalSell = 0;
 
     data.forEach(t=>{
-        totalBuy += Number(t.buyTotal);
-        totalSell += Number(t.sellTotal);
+        totalBuy += t.buyTotal;
+        totalSell += t.sellTotal;
 
         t.items.forEach(i=>{
-            combined[i.name] = (combined[i.name] || 0) + Number(i.qty);
+            combined[i.name] = (combined[i.name] || 0) + i.qty;
         });
     });
 
     let list = "";
-
     Object.entries(combined).forEach(([name, qty])=>{
         list += `• ${name} x${qty}\n`;
     });
 
     const profit = totalSell - totalBuy;
-    const discordId = localStorage.getItem("discordId") || "";
 
-    const embed = {
-        title: "Zakończenie zmiany",
-        color: 0x000000,
-        description:
-`👤 Pracownik: ${discordId ? `<@${discordId}>` : "Brak"}
-
-📦 Przedmioty:
+    await fetch(WEBHOOK_SHIFT, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+            embeds: [{
+                title: "Zakończenie zmiany",
+                color: 0x000000,
+                description:
+`📦 Przedmioty:
 ${list}
 
 💰 Skup: ${totalBuy}$
 💸 Lombard: ${totalSell}$
 📈 Zysk: ${profit}$`
-    };
-
-    await fetch("WEBHOOK_URL", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ embeds:[embed] })
+            }]
+        })
     });
 
     localStorage.removeItem("h");
@@ -208,28 +226,19 @@ function renderHistory(){
     data.forEach(t=>{
         const d = document.createElement("div");
         d.className = "transaction";
-        d.innerText = `${t.date} | Skup: ${t.buyTotal}$ | Lombard: ${t.sellTotal}$`;
+        d.innerText = `${t.date} | ${t.buyTotal}$`;
         historyList.appendChild(d);
     });
 }
 
-// --- SETTINGS ---
-settingsBtn.onclick = ()=>{
-    settingsModal.style.display = "flex";
-    discordIdInput.value = localStorage.getItem("discordId") || "";
-};
-
-function saveSettings(){
-    localStorage.setItem("discordId", discordIdInput.value.trim());
-    settingsModal.style.display = "none";
-    showToast("Zapisano ID");
-}
-
-// --- TOAST ---
+// --- TOAST 🔥 ---
 function showToast(msg){
     toast.innerText = msg;
-    toast.style.display = "block";
-    setTimeout(()=>toast.style.display="none",2000);
+    toast.classList.add("show");
+
+    setTimeout(()=>{
+        toast.classList.remove("show");
+    },2000);
 }
 
 // INIT
