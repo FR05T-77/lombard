@@ -40,7 +40,11 @@
 </table>
 
 <div class="total">
-Skup: <b><span id="total">0</span>$</b>
+    💰 Skup: <b><span id="buyTotal">0</span>$</b><br>
+    💸 Lombard: <b><span id="sellTotal">0</span>$</b><br><br>
+
+    💵 Cena transakcji:
+    <input id="customPrice" placeholder="np. 500">
 </div>
 
 </div>
@@ -68,6 +72,10 @@ Skup: <b><span id="total">0</span>$</b>
     <br><br>
     <button onclick="saveSettings()">Zapisz</button>
   </div>
+</div>
+
+<div class="modal" id="modal">
+  <div id="modalContent"></div>
 </div>
 
 <div class="toast" id="toast"></div>
