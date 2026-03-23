@@ -28,19 +28,6 @@ body {
     margin-bottom:10px;
 }
 
-.toolbar .left,
-.toolbar .right {
-    display:flex;
-    gap:10px;
-}
-
-.side-header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:10px;
-}
-
 button {
     background:#2a2a2a;
     border:none;
@@ -56,10 +43,6 @@ button.danger {
     background:#3a1f1f;
 }
 
-button.danger:hover {
-    background:#5a2a2a;
-}
-
 input {
     width:100%;
     padding:12px;
@@ -69,12 +52,14 @@ input {
     color:white;
 }
 
-/* 🔥 FIX: scroll dla wyników */
+#qtyBox {
+    margin-top: 5px;
+}
+
 #results {
     max-height: 250px;
     overflow-y: auto;
     margin-top: 5px;
-    border-radius: 8px;
 }
 
 .result {
@@ -82,7 +67,6 @@ input {
     background:#1e1e1e;
     margin-top:5px;
     border-radius:6px;
-    cursor:pointer;
 }
 
 .selected { background:#3a3a3a; }
@@ -97,14 +81,47 @@ td, th {
     border-bottom:1px solid #2a2a2a;
 }
 
-.transaction {
-    padding:10px;
-    background:#1a1a1a;
-    margin-bottom:8px;
-    border-radius:6px;
-    cursor:pointer;
+/* center */
+td:nth-child(2),
+td:nth-child(3),
+td:nth-child(4),
+th:nth-child(2),
+th:nth-child(3),
+th:nth-child(4) {
+    text-align: center;
 }
 
+/* total */
+.total {
+    margin-top: 15px;
+    padding: 15px;
+    background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+    border-radius: 10px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.total span {
+    font-size: 26px;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+/* delete */
+.remove-btn {
+    background: #3a1f1f;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #ff6b6b;
+    cursor: pointer;
+}
+
+.remove-btn:hover {
+    background: #5a2a2a;
+}
+
+/* modal */
 .modal {
     position:fixed;
     inset:0;
@@ -130,6 +147,7 @@ td, th {
     cursor:pointer;
 }
 
+/* toast */
 .toast {
     position: fixed;
     bottom: 20px;
