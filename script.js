@@ -1,12 +1,23 @@
 let products = {};
 
-// 🔥 DWA WEBHOOKI
 const WEBHOOK_TRANSACTION = "https://discord.com/api/webhooks/1485761128217837568/Y6UHCNADaxG0Y_OJ5KR2uwSjlZN9qBk5EDy_YZdfLtYfkn15YIyKDCZIWTX1wB2kS0eW";
 const WEBHOOK_SHIFT = "https://discord.com/api/webhooks/1485770501107351562/ulmO4WHtRKKz7n0RMt9tkc6ZnHoZAlQyZIFTCuKk6BrXT0lhXiVXlpCNGUkaEDHaWhp7";
 
 fetch("products.json")
 .then(res=>res.json())
 .then(data=>products=data);
+
+// --- SETTINGS 🔥 ---
+settingsBtn.onclick = ()=>{
+    settingsModal.style.display = "flex";
+    discordIdInput.value = localStorage.getItem("discordId") || "";
+};
+
+function saveSettings(){
+    localStorage.setItem("discordId", discordIdInput.value.trim());
+    settingsModal.style.display = "none";
+    showToast("Zapisano ID");
+}
 
 // --- SEARCH ---
 let filtered=[], selectedIndex=0, selectedProduct=null;
@@ -105,27 +116,23 @@ function resetCart(){
     update();
 }
 
-// --- ACCEPT (TRANSAKCJA) 🔥
+// --- ACCEPT 🔥 (MENTION USERA)
 async function accept(){
-    let items = [];
-    let sellTotal = 0;
     let list = "";
+    let sellTotal = 0;
 
     [...cart.rows].forEach((r,i)=>{
         if(i===0) return;
 
         const name = r.cells[0].innerText;
-        const qty = Number(r.cells[1].innerText);
-        const sum = Number(r.cells[3].innerText);
-
-        items.push({ name, qty, sum });
+        const qty = r.cells[1].innerText;
+        const sum = r.cells[3].innerText;
 
         list += `• ${name} x${qty} = ${sum}$\n`;
-
         sellTotal += Number(r.dataset.sell);
     });
 
-    if(items.length === 0){
+    if(!list){
         showToast("Koszyk pusty");
         return;
     }
@@ -133,16 +140,21 @@ async function accept(){
     const buyTotal = Number(total.innerText);
     const profit = sellTotal - buyTotal;
 
-    // 📤 WEBHOOK TRANSAKCJI (EMBED jak screen)
+    const discordId = localStorage.getItem("discordId");
+    const userTag = discordId ? `<@${discordId}>` : "Brak";
+
     await fetch(WEBHOOK_TRANSACTION, {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
             embeds: [{
-                title: "Nowa transakcja:",
+                title: "Nowa transakcja",
                 color: 0x2b2d31,
                 description:
-`${list}
+`👤 Pracownik: ${userTag}
+
+📦 Przedmioty:
+${list}
 
 💰 Skup: ${buyTotal}$
 💸 Lombard: ${sellTotal}$
@@ -151,11 +163,9 @@ async function accept(){
         })
     });
 
-    // zapis historii
     let data = JSON.parse(localStorage.getItem("h") || "[]");
 
     data.push({
-        items,
         buyTotal,
         sellTotal,
         date: new Date().toLocaleString()
@@ -166,33 +176,25 @@ async function accept(){
     renderHistory();
     resetCart();
 
-    showToast("Transakcja wysłana");
+    showToast("Wysłano na Discord");
 }
 
-// --- SHIFT END (DRUGI WEBHOOK) ---
+// --- SHIFT ---
 async function endShift(){
     const data = JSON.parse(localStorage.getItem("h") || "[]");
     if(!data.length) return;
 
-    let combined = {};
     let totalBuy = 0;
     let totalSell = 0;
 
     data.forEach(t=>{
         totalBuy += t.buyTotal;
         totalSell += t.sellTotal;
-
-        t.items.forEach(i=>{
-            combined[i.name] = (combined[i.name] || 0) + i.qty;
-        });
-    });
-
-    let list = "";
-    Object.entries(combined).forEach(([name, qty])=>{
-        list += `• ${name} x${qty}\n`;
     });
 
     const profit = totalSell - totalBuy;
+    const discordId = localStorage.getItem("discordId");
+    const userTag = discordId ? `<@${discordId}>` : "Brak";
 
     await fetch(WEBHOOK_SHIFT, {
         method:"POST",
@@ -202,8 +204,7 @@ async function endShift(){
                 title: "Zakończenie zmiany",
                 color: 0x000000,
                 description:
-`📦 Przedmioty:
-${list}
+`👤 Pracownik: ${userTag}
 
 💰 Skup: ${totalBuy}$
 💸 Lombard: ${totalSell}$
@@ -231,7 +232,7 @@ function renderHistory(){
     });
 }
 
-// --- TOAST 🔥 ---
+// --- TOAST ---
 function showToast(msg){
     toast.innerText = msg;
     toast.classList.add("show");
