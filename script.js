@@ -4,9 +4,9 @@ fetch("products.json")
 .then(res=>res.json())
 .then(data=>products=data);
 
+// --- SEARCH ---
 let filtered=[], selectedIndex=0, selectedProduct=null;
 
-// --- SEARCH ---
 function openSearch(){
     searchBox.style.display="block";
     searchBox.focus();
@@ -23,6 +23,7 @@ searchBox.onkeydown=e=>{
     if(e.key==="ArrowDown") selectedIndex=(selectedIndex+1)%filtered.length;
     if(e.key==="ArrowUp") selectedIndex=(selectedIndex-1+filtered.length)%filtered.length;
     if(e.key==="Enter"){
+        if(!filtered.length) return;
         selectedProduct=filtered[selectedIndex];
         qtyBox.style.display="block";
         qtyBox.focus();
@@ -36,7 +37,11 @@ function render(){
         const d=document.createElement("div");
         d.className="result"+(i===selectedIndex?" selected":"");
         d.innerText=p+" — "+products[p].buy+"$";
-        d.onclick=()=>{selectedProduct=p; qtyBox.style.display="block"; qtyBox.focus();}
+        d.onclick=()=>{
+            selectedProduct=p;
+            qtyBox.style.display="block";
+            qtyBox.focus();
+        };
         results.appendChild(d);
     });
 }
@@ -49,85 +54,120 @@ qtyBox.onkeydown=e=>{
         qtyBox.style.display="none";
         searchBox.value="";
         results.innerHTML="";
+        searchBox.focus();
     }
 };
 
 function add(name,qty){
-    qty=Number(qty);
-    const r=cart.insertRow();
+    qty = Number(qty);
+    if(!qty) return;
 
-    r.insertCell().innerText=name;
-    r.insertCell().innerText=qty;
-    r.insertCell().innerText=products[name].buy;
-    r.insertCell().innerText=products[name].buy*qty;
+    const buy = Number(products[name].buy);
+    const sell = Number(products[name].sell);
 
-    r.dataset.sell = products[name].sell * qty;
+    const r = cart.insertRow();
+
+    r.insertCell().innerText = name;
+    r.insertCell().innerText = qty;
+    r.insertCell().innerText = buy;
+    r.insertCell().innerText = buy * qty;
+
+    r.dataset.sell = sell * qty;
 
     update();
 }
 
 function update(){
-    let totalBuy=0;
+    let totalBuy = 0;
+
     [...cart.rows].forEach((r,i)=>{
-        if(i===0)return;
-        totalBuy+=Number(r.cells[3].innerText);
+        if(i===0) return;
+        totalBuy += Number(r.cells[3].innerText);
     });
-    total.innerText=totalBuy;
+
+    total.innerText = totalBuy;
+}
+
+function resetCart(){
+    cart.innerHTML = `
+    <tr>
+        <th>Produkt</th>
+        <th>Ilość</th>
+        <th>Cena</th>
+        <th>Suma</th>
+    </tr>`;
+    update();
 }
 
 // --- ACCEPT ---
 function accept(){
-    let items=[];
-    let sellTotal=0;
+    let items = [];
+    let sellTotal = 0;
 
     [...cart.rows].forEach((r,i)=>{
-        if(i===0)return;
+        if(i===0) return;
 
         items.push({
-            name:r.cells[0].innerText,
-            qty:Number(r.cells[1].innerText),
-            sum:Number(r.cells[3].innerText)
+            name: r.cells[0].innerText,
+            qty: Number(r.cells[1].innerText),
+            sum: Number(r.cells[3].innerText)
         });
 
-        sellTotal+=Number(r.dataset.sell);
+        sellTotal += Number(r.dataset.sell);
     });
 
-    const buyTotal=Number(total.innerText);
+    if(items.length === 0){
+        showToast("Koszyk pusty");
+        return;
+    }
 
-    let data=JSON.parse(localStorage.getItem("h")||"[]");
-    data.push({items,buyTotal,sellTotal});
-    localStorage.setItem("h",JSON.stringify(data));
+    const buyTotal = Number(total.innerText);
+
+    navigator.clipboard.writeText(buyTotal);
+
+    let data = JSON.parse(localStorage.getItem("h") || "[]");
+
+    data.push({
+        items,
+        buyTotal,
+        sellTotal,
+        date: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("h", JSON.stringify(data));
 
     resetCart();
     renderHistory();
+
+    showToast("Zapisano: " + buyTotal + "$");
 }
 
 // --- SHIFT END ---
 async function endShift(){
-    const data = JSON.parse(localStorage.getItem("h")||"[]");
+    const data = JSON.parse(localStorage.getItem("h") || "[]");
     if(!data.length) return;
 
     let combined = {};
-    let totalBuy=0;
-    let totalSell=0;
+    let totalBuy = 0;
+    let totalSell = 0;
 
     data.forEach(t=>{
-        totalBuy+=t.buyTotal;
-        totalSell+=t.sellTotal;
+        totalBuy += Number(t.buyTotal);
+        totalSell += Number(t.sellTotal);
 
         t.items.forEach(i=>{
-            if(!combined[i.name]) combined[i.name]=0;
-            combined[i.name]+=i.qty;
+            combined[i.name] = (combined[i.name] || 0) + Number(i.qty);
         });
     });
 
-    let list="";
-    for(let name in combined){
-        list += `${name} x${combined[name]}\n`;
-    }
+    let list = "";
+
+    Object.entries(combined).forEach(([name, qty])=>{
+        list += `• ${name} x${qty}\n`;
+    });
 
     const profit = totalSell - totalBuy;
-    const discordId = localStorage.getItem("discordId")||"";
+    const discordId = localStorage.getItem("discordId") || "";
 
     const embed = {
         title: "Zakończenie zmiany",
@@ -151,29 +191,41 @@ ${list}
 
     localStorage.removeItem("h");
     renderHistory();
+
+    showToast("Zmiana zakończona");
 }
 
 // --- HISTORY ---
 function renderHistory(){
-    const data=JSON.parse(localStorage.getItem("h")||"[]");
-    historyList.innerHTML="";
+    const data = JSON.parse(localStorage.getItem("h") || "[]");
+    historyList.innerHTML = "";
+
     data.forEach(t=>{
-        const d=document.createElement("div");
-        d.className="transaction";
-        d.innerText=`Skup: ${t.buyTotal}$ | Lombard: ${t.sellTotal}$`;
+        const d = document.createElement("div");
+        d.className = "transaction";
+        d.innerText = `${t.date} | Skup: ${t.buyTotal}$ | Lombard: ${t.sellTotal}$`;
         historyList.appendChild(d);
     });
 }
 
 // --- SETTINGS ---
-settingsBtn.onclick=()=>{
-    settingsModal.style.display="flex";
-    discordIdInput.value=localStorage.getItem("discordId")||"";
+settingsBtn.onclick = ()=>{
+    settingsModal.style.display = "flex";
+    discordIdInput.value = localStorage.getItem("discordId") || "";
 };
 
 function saveSettings(){
-    localStorage.setItem("discordId",discordIdInput.value);
-    settingsModal.style.display="none";
+    localStorage.setItem("discordId", discordIdInput.value.trim());
+    settingsModal.style.display = "none";
+    showToast("Zapisano ID");
 }
 
+// --- TOAST ---
+function showToast(msg){
+    toast.innerText = msg;
+    toast.style.display = "block";
+    setTimeout(()=>toast.style.display="none",2000);
+}
+
+// INIT
 renderHistory();
