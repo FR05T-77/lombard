@@ -1,0 +1,10 @@
+{
+  "Stara moneta": { "buy": 2600, "sell": 2750 },
+  "Złota moneta": { "buy": 2600, "sell": 2750 },
+  "Platynowa moneta": { "buy": 5150, "sell": 5500 },
+  "Telefon": { "buy": 78, "sell": 100 },
+  "Radio": { "buy": 1550, "sell": 1700 },
+  "Boombox": { "buy": 365, "sell": 420 },
+  "Portfel": { "buy": 51, "sell": 80 },
+  "Spray": { "buy": 51, "sell": 70 }
+}

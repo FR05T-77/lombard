@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Kalkulator Lombard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="main">
+<h2>Kalkulator</h2>
+
+<div class="toolbar">
+<button onclick="openSearch()">Dodaj</button>
+<button onclick="accept()">Akceptuj</button>
+<button onclick="resetCart()">Reset koszyk</button>
+<button onclick="resetHistory()">Reset historii</button>
+</div>
+
+<input id="searchBox" placeholder="Szukaj..." style="display:none;">
+<div id="results"></div>
+
+<input id="qtyBox" placeholder="Ilość" style="display:none;">
+
+<table id="cart">
+<tr>
+<th>Produkt</th><th>Ilość</th><th>Cena (skup)</th><th>Suma</th>
+</tr>
+</table>
+
+<div class="total">
+Skup: <b><span id="total">0</span>$</b>
+</div>
+
+</div>
+
+<div class="side">
+<h2>Transakcje</h2>
+<div id="historyList"></div>
+</div>
+
+</div>
+
+<!-- MODALE -->
+<div class="modal" id="modal">
+<div class="modal-box" id="modalContent"></div>
+</div>
+
+<div class="modal" id="settingsModal">
+<div class="modal-box">
+<h3>Ustawienia</h3>
+<input id="discordIdInput" placeholder="Discord ID">
+<br><br>
+<button onclick="saveSettings()">Zapisz</button>
+</div>
+</div>
+
+<div id="settingsBtn">⚙️</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
