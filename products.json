@@ -44,6 +44,8 @@
   "Szmatka": { "buy": 105, "sell": 110 },
   "Pilot RGB": { "buy": 155, "sell": 165 },
   "Nożyce ogrodnicze": { "buy": 78, "sell": 83 },
+  "Tablet": { "buy": 450, "sell": 450 },
+  "Kajdanki": { "buy": 1000, "sell": 1000 },
 
   "Stara moneta": { "buy": 1660, "sell": 1750 },
   "Okolicznościowa moneta": { "buy": 1660, "sell": 1750 },
