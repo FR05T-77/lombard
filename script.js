@@ -1,6 +1,11 @@
 let products = {};
 let commissions = {};
 
+// 🔥 SHIFT STATE
+let shiftActive = false;
+let startTime = null;
+let clockInterval = null;
+
 fetch("products.json")
 .then(res=>res.json())
 .then(data=>products=data);
@@ -11,6 +16,36 @@ fetch("commissions.json")
     commissions = data;
     loadRoles();
 });
+
+// --- SHIFT START ---
+function startShift(){
+    const money = startMoney.value;
+
+    if(!money){
+        showToast("Podaj środki");
+        return;
+    }
+
+    shiftActive = true;
+    startTime = Date.now();
+
+    startModal.style.display = "none";
+    clock.style.display = "block";
+
+    startClock();
+}
+
+function startClock(){
+    clockInterval = setInterval(()=>{
+        const diff = Date.now() - startTime;
+
+        const h = String(Math.floor(diff/3600000)).padStart(2,"0");
+        const m = String(Math.floor(diff/60000)%60).padStart(2,"0");
+        const s = String(Math.floor(diff/1000)%60).padStart(2,"0");
+
+        clock.innerText = `${h}:${m}:${s}`;
+    },1000);
+}
 
 // --- SETTINGS ---
 settingsBtn.onclick = ()=>{
@@ -159,6 +194,13 @@ function resetCart(){
 
 // --- ACCEPT ---
 async function accept(){
+
+    // 🔥 BLOKADA BEZ ZMIANY
+    if(!shiftActive){
+        showToast("Najpierw rozpocznij zmianę");
+        return;
+    }
+
     let list = "";
     let items = [];
 
@@ -243,6 +285,12 @@ async function endShift(){
 
     localStorage.removeItem("h");
     renderHistory();
+
+    // 🔥 RESET ZMIANY
+    clearInterval(clockInterval);
+    clock.style.display = "none";
+    startModal.style.display = "flex";
+    shiftActive = false;
 
     showToast("Zmiana zakończona");
 }
