@@ -6,6 +6,11 @@ let shiftActive = false;
 let startTime = null;
 let clockInterval = null;
 
+// 🔥 FINANSE
+let lombardCash = 0;
+let workerCash = 0;
+let shiftOwn = false;
+
 fetch("products.json")
 .then(res=>res.json())
 .then(data=>products=data);
@@ -19,7 +24,7 @@ fetch("commissions.json")
 
 // --- SHIFT START ---
 function startShift(){
-    const money = startMoney.value;
+    const money = Number(startMoney.value);
     const discordId = localStorage.getItem("discordId");
     const role = localStorage.getItem("role");
 
@@ -38,13 +43,28 @@ function startShift(){
         return;
     }
 
+    shiftOwn = ownMoney.checked;
+
     shiftActive = true;
     startTime = Date.now();
+
+    lombardCash = 0;
+    workerCash = 0;
+
+    // 🔥 STARTOWA KASA
+    if(shiftOwn){
+        workerCash = money;
+    } else {
+        lombardCash = money;
+    }
+
+    updateFinance();
 
     // 🔥 SAVE
     localStorage.setItem("shiftActive", "1");
     localStorage.setItem("shiftStart", startTime);
     localStorage.setItem("shiftMoney", money);
+    localStorage.setItem("shiftOwn", shiftOwn ? "1" : "0");
 
     startModal.style.display = "none";
     clock.style.display = "block";
@@ -62,6 +82,12 @@ function startClock(){
 
         clock.innerText = `${h}:${m}:${s}`;
     },1000);
+}
+
+// 🔥 UPDATE FINANSE
+function updateFinance(){
+    document.getElementById("lombardCash").innerText = lombardCash + "$";
+    document.getElementById("workerCash").innerText = workerCash + "$";
 }
 
 // --- SETTINGS ---
@@ -252,6 +278,18 @@ async function accept(){
     const profit = sell - custom;
     const negotiation = custom - buy;
 
+    // 🔥 PODZIAŁ KASY
+    const role = localStorage.getItem("role");
+    const percent = commissions[role] || 0;
+
+    const workerGain = Math.round((profit * percent) / 100);
+    const lombardGain = profit - workerGain;
+
+    workerCash += workerGain;
+    lombardCash += lombardGain;
+
+    updateFinance();
+
     try {
         await sendTransactionWebhook({
             list,
@@ -305,6 +343,7 @@ async function endShift(){
     localStorage.removeItem("shiftActive");
     localStorage.removeItem("shiftStart");
     localStorage.removeItem("shiftMoney");
+    localStorage.removeItem("shiftOwn");
 
     renderHistory();
 
@@ -312,6 +351,11 @@ async function endShift(){
     clock.style.display = "none";
     startModal.style.display = "flex";
     shiftActive = false;
+
+    // 🔥 RESET KASY
+    lombardCash = 0;
+    workerCash = 0;
+    updateFinance();
 
     showToast("Zmiana zakończona");
 }
@@ -395,15 +439,28 @@ customPrice.addEventListener("keydown", (e)=>{
 // 🔥 RESTORE SHIFT AFTER RELOAD
 const savedShift = localStorage.getItem("shiftActive");
 const savedStart = localStorage.getItem("shiftStart");
+const savedOwn = localStorage.getItem("shiftOwn");
+const savedMoney = Number(localStorage.getItem("shiftMoney") || 0);
 
 if(savedShift && savedStart){
     shiftActive = true;
     startTime = Number(savedStart);
+    shiftOwn = savedOwn === "1";
+
+    lombardCash = 0;
+    workerCash = 0;
+
+    if(shiftOwn){
+        workerCash = savedMoney;
+    } else {
+        lombardCash = savedMoney;
+    }
 
     startModal.style.display = "none";
     clock.style.display = "block";
 
     startClock();
+    updateFinance();
 }
 
 renderHistory();
