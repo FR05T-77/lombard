@@ -235,11 +235,13 @@ async function endShift(){
 
     let totalBuy = 0;
     let totalSell = 0;
+    let totalFinal = 0;
     let combined = {};
 
     data.forEach(t=>{
         totalBuy += t.buyTotal;
         totalSell += t.sellTotal;
+        totalFinal += (t.final || t.sellTotal);
 
         (t.items || []).forEach(i=>{
             combined[i.name] = (combined[i.name] || 0) + i.qty;
@@ -251,7 +253,8 @@ async function endShift(){
         list += `• ${name} x${qty}\n`;
     });
 
-    const profit = totalSell - totalBuy;
+    const negotiation = totalFinal - totalBuy;
+    const profit = totalSell - totalFinal;
 
     const discordId = localStorage.getItem("discordId");
     const userTag = discordId ? `<@${discordId}>` : "Brak";
@@ -271,6 +274,9 @@ ${list || "Brak"}
 
 💰 Skup: ${totalBuy}$
 💸 Lombard: ${totalSell}$
+💵 Sprzedaż: ${totalFinal}$
+
+📉 Negocjacja: ${negotiation}$
 📈 Zysk: ${profit}$`
             }]
         })
