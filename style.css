@@ -20,6 +20,8 @@ body {
     padding:20px;
     background:#0e0e0e;
     overflow:auto;
+    
+    position: relative; /* 🔥 KLUCZOWE */
 }
 
 /* 🔥 HEADER Z ZEGAREM */
