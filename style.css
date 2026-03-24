@@ -236,5 +236,6 @@ td:last-child, th:last-child {
 
 #customPrice {
     width: 120px;
+    font-size: 18px;
     text-align: center;
 }
