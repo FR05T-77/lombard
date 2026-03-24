@@ -108,8 +108,18 @@ td:last-child, th:last-child {
     padding: 15px;
     background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
     border-radius: 10px;
-    font-size: 20px;
-    text-align: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    font-size: 18px;
+}
+.total > div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .total span {
@@ -225,7 +235,6 @@ td:last-child, th:last-child {
 }
 
 #customPrice {
-    margin-top:10px;
-    text-align:center;
-    font-size:18px;
+    width: 120px;
+    text-align: center;
 }
