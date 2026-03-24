@@ -286,3 +286,11 @@ td:last-child, th:last-child {
     font-size: 18px;
     text-align: center;
 }
+
+#settingsModal {
+    z-index: 2000;
+}
+
+#startModal {
+    z-index: 1500;
+}
