@@ -54,6 +54,7 @@
 
 <div class="side-header">
   <h2>Transakcje</h2>
+  <div id="clock" style="display:none;">00:00:00</div>
   <button class="danger" onclick="endShift()">Zakończ zmianę</button>
 </div>
 
@@ -69,7 +70,7 @@
 <div class="modal" id="settingsModal">
   <div class="modal-box">
     <h3>Ustaw Discord ID</h3>
-    <input id="discordIdInput" placeholder="np. 123456789012345678">
+    <input id="discordIdInput">
 
     <br><br>
 
@@ -81,13 +82,36 @@
   </div>
 </div>
 
+<!-- 🔥 MODAL STARTU ZMIANY -->
+<div class="modal" id="startModal" style="display:flex;">
+  <div class="modal-box">
+    <h3>Rozpocznij zmianę</h3>
+
+    <input id="startMoney" placeholder="Środki startowe">
+
+    <br><br>
+
+    <label>
+      <input type="checkbox" id="ownMoney">
+      Własne
+    </label>
+
+    <br><br>
+
+    <button onclick="settingsModal.style.display='flex'">⚙️ Ustawienia</button>
+
+    <br><br>
+
+    <button onclick="startShift()">Rozpocznij zmianę</button>
+  </div>
+</div>
+
 <div class="modal" id="modal">
   <div id="modalContent"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- 🔥 KOLEJNOŚĆ MA ZNACZENIE -->
 <script src="webhooks.js"></script>
 <script src="script.js"></script>
 
