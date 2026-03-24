@@ -1,22 +1,45 @@
 let products = {};
-
-const WEBHOOK_TRANSACTION = "https://discord.com/api/webhooks/1485795847420772372/az3BlOR_KRD1auAlGNI7Pserm0fcu5B7zmN7L8tCmkVUL-AeI52ewrhnx8PahFmlY2YD";
-const WEBHOOK_SHIFT = "https://discord.com/api/webhooks/1485795991251714258/ddpkSfMY8edAthRquT--v3M1GLlFlX5o4OAdcsyZxAdnlM48-hHMTxYBjX6TkQFSJNly";
+let commissions = {};
 
 fetch("products.json")
 .then(res=>res.json())
 .then(data=>products=data);
 
+fetch("commissions.json")
+.then(res=>res.json())
+.then(data=>{
+    commissions = data;
+    loadRoles();
+});
+
 // --- SETTINGS ---
 settingsBtn.onclick = ()=>{
     settingsModal.style.display = "flex";
     discordIdInput.value = localStorage.getItem("discordId") || "";
+    roleSelect.value = localStorage.getItem("role") || "";
 };
+
+function loadRoles(){
+    roleSelect.innerHTML = "";
+
+    Object.keys(commissions).forEach(role=>{
+        const opt = document.createElement("option");
+        opt.value = role;
+        opt.innerText = `${role} (${commissions[role]}%)`;
+        roleSelect.appendChild(opt);
+    });
+
+    const savedRole = localStorage.getItem("role");
+    if(savedRole){
+        roleSelect.value = savedRole;
+    }
+}
 
 function saveSettings(){
     localStorage.setItem("discordId", discordIdInput.value.trim());
+    localStorage.setItem("role", roleSelect.value);
     settingsModal.style.display = "none";
-    showToast("Zapisano ID");
+    showToast("Zapisano ustawienia");
 }
 
 // --- SEARCH ---
@@ -119,7 +142,6 @@ function update(){
     buyTotal.innerText = totalBuy;
     sellTotal.innerText = totalSell;
 
-    // 🔥 AUTO USTAWIENIE NA SKUP
     customPrice.value = totalBuy;
 }
 
@@ -172,36 +194,17 @@ async function accept(){
     const profit = sell - custom;
     const negotiation = custom - buy;
 
-    const discordId = localStorage.getItem("discordId");
-    const userTag = discordId ? `<@${discordId}>` : "Brak";
-
     try {
-        console.log("Wysyłam webhook...");
-
-        await fetch(WEBHOOK_TRANSACTION, {
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body: JSON.stringify({
-                embeds: [{
-                    title: "Nowa transakcja",
-                    color: 0x2b2d31,
-                    description:
-`👤 Pracownik: ${userTag}
-
-📦 Przedmioty:
-${list}
-
-💰 Skup: ${buy}$
-💸 Lombard: ${sell}$
-💵 Sprzedaż: ${custom}$
-
-📉 Negocjacja: ${negotiation}$
-📈 Zysk: ${profit}$`
-                }]
-            })
+        await sendTransactionWebhook({
+            list,
+            buy,
+            sell,
+            custom,
+            negotiation,
+            profit,
+            commissions
         });
 
-        // 🔥 kopiowanie do schowka
         navigator.clipboard.writeText(custom.toString());
 
         let data = JSON.parse(localStorage.getItem("h") || "[]");
@@ -233,53 +236,9 @@ async function endShift(){
     const data = JSON.parse(localStorage.getItem("h") || "[]");
     if(!data.length) return;
 
-    let totalBuy = 0;
-    let totalSell = 0;
-    let totalFinal = 0;
-    let combined = {};
-
-    data.forEach(t=>{
-        totalBuy += t.buyTotal;
-        totalSell += t.sellTotal;
-        totalFinal += (t.final || t.sellTotal);
-
-        (t.items || []).forEach(i=>{
-            combined[i.name] = (combined[i.name] || 0) + i.qty;
-        });
-    });
-
-    let list = "";
-    Object.entries(combined).forEach(([name, qty])=>{
-        list += `• ${name} x${qty}\n`;
-    });
-
-    const negotiation = totalFinal - totalBuy;
-    const profit = totalSell - totalFinal;
-
-    const discordId = localStorage.getItem("discordId");
-    const userTag = discordId ? `<@${discordId}>` : "Brak";
-
-    await fetch(WEBHOOK_SHIFT, {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({
-            embeds: [{
-                title: "Zakończenie zmiany",
-                color: 0x000000,
-                description:
-`👤 Pracownik: ${userTag}
-
-📦 Przedmioty:
-${list || "Brak"}
-
-💰 Skup: ${totalBuy}$
-💸 Lombard: ${totalSell}$
-💵 Sprzedaż: ${totalFinal}$
-
-📉 Negocjacja: ${negotiation}$
-📈 Zysk: ${profit}$`
-            }]
-        })
+    await sendShiftWebhook({
+        data,
+        commissions
     });
 
     localStorage.removeItem("h");
@@ -341,7 +300,6 @@ function showDetails(t){
     modal.style.display = "flex";
 }
 
-// 🔥 ZAMYKANIE MODALA KLIKNIĘCIEM TŁA
 modal.onclick = (e)=>{
     if(e.target === modal){
         modal.style.display = "none";
@@ -365,5 +323,4 @@ customPrice.addEventListener("keydown", (e)=>{
     }
 });
 
-// INIT
 renderHistory();
