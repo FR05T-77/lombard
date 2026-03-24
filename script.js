@@ -1,7 +1,7 @@
 let products = {};
 
-const WEBHOOK_TRANSACTION = "https://discord.com/api/webhooks/1485761128217837568/Y6UHCNADaxG0Y_OJ5KR2uwSjlZN9qBk5EDy_YZdfLtYfkn15YIyKDCZIWTX1wB2kS0eW";
-const WEBHOOK_SHIFT = "https://discord.com/api/webhooks/1485770501107351562/ulmO4WHtRKKz7n0RMt9tkc6ZnHoZAlQyZIFTCuKk6BrXT0lhXiVXlpCNGUkaEDHaWhp7";
+const WEBHOOK_TRANSACTION = "https://discord.com/api/webhooks/1485795847420772372/az3BlOR_KRD1auAlGNI7Pserm0fcu5B7zmN7L8tCmkVUL-AeI52ewrhnx8PahFmlY2YD";
+const WEBHOOK_SHIFT = "https://discord.com/api/webhooks/1485795991251714258/ddpkSfMY8edAthRquT--v3M1GLlFlX5o4OAdcsyZxAdnlM48-hHMTxYBjX6TkQFSJNly";
 
 fetch("products.json")
 .then(res=>res.json())
