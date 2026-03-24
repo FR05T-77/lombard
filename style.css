@@ -22,10 +22,26 @@ body {
     overflow:auto;
 }
 
+/* 🔥 HEADER Z ZEGAREM */
 .side-header {
     margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
+#clock {
+    font-size: 28px;
+    font-weight: bold;
+    color: #4caf50;
+    text-align: center;
+    background: #1a1a1a;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #2a2a2a;
+}
+
+/* toolbar */
 .toolbar {
     display:flex;
     justify-content:space-between;
@@ -39,6 +55,7 @@ button {
     border-radius:8px;
     color:#ddd;
     cursor:pointer;
+    transition: 0.2s;
 }
 
 button:hover { background:#3a3a3a; }
@@ -47,13 +64,27 @@ button.danger {
     background:#3a1f1f;
 }
 
-input {
+button.danger:hover {
+    background:#5a2a2a;
+}
+
+input, select {
     width:100%;
     padding:12px;
     background:#1e1e1e;
     border:none;
     border-radius:8px;
     color:white;
+}
+
+/* 🔥 START MODAL */
+#startModal .modal-box {
+    width: 320px;
+    text-align: center;
+}
+
+#startModal button {
+    width: 100%;
 }
 
 /* 🔥 WIĘKSZY ODSTĘP */
@@ -72,6 +103,11 @@ input {
     background:#1e1e1e;
     margin-top:5px;
     border-radius:6px;
+    cursor:pointer;
+}
+
+.result:hover {
+    background:#2a2a2a;
 }
 
 .selected { background:#3a3a3a; }
@@ -116,6 +152,7 @@ td:last-child, th:last-child {
 
     font-size: 18px;
 }
+
 .total > div {
     display: flex;
     align-items: center;
@@ -144,14 +181,14 @@ td:last-child, th:last-child {
 
 /* 🔥 LISTA TRANSAKCJI */
 .transaction {
-    padding: 8px 10px; /* było 12px */
+    padding: 8px 10px;
     background: linear-gradient(135deg, #1a1a1a, #222);
     margin-bottom: 8px;
     border-radius: 8px;
     cursor: pointer;
     border: 1px solid #2a2a2a;
     transition: 0.2s;
-    font-size: 14px; /* 🔥 trochę mniejsze */
+    font-size: 14px;
 }
 
 .transaction:hover {
@@ -178,15 +215,18 @@ td:last-child, th:last-child {
     justify-content:center;
     align-items:center;
     background:rgba(0,0,0,0.7);
+    z-index: 1000;
 }
 
-/* 🔥 modal szczegółów */
+/* 🔥 modal box */
 .modal-box {
     background:#1e1e1e;
     padding:20px;
     border-radius:10px;
+    min-width: 300px;
 }
 
+/* 🔥 modal szczegółów */
 .modal-box.details {
     width: 400px;
 }
@@ -213,6 +253,7 @@ td:last-child, th:last-child {
     padding:12px;
     border-radius:50%;
     cursor:pointer;
+    z-index: 1001;
 }
 
 /* toast */
@@ -227,6 +268,7 @@ td:last-child, th:last-child {
     opacity: 0;
     transform: translateY(20px);
     transition: 0.3s;
+    z-index: 2000;
 }
 
 .toast.show {
@@ -238,13 +280,4 @@ td:last-child, th:last-child {
     width: 150px;
     font-size: 18px;
     text-align: center;
-}
-
-select {
-    width: 100%;
-    padding: 12px;
-    background: #1e1e1e;
-    border: none;
-    border-radius: 8px;
-    color: white;
 }
