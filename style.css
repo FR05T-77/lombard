@@ -239,3 +239,12 @@ td:last-child, th:last-child {
     font-size: 18px;
     text-align: center;
 }
+
+select {
+    width: 100%;
+    padding: 12px;
+    background: #1e1e1e;
+    border: none;
+    border-radius: 8px;
+    color: white;
+}
