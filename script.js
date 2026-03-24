@@ -20,9 +20,21 @@ fetch("commissions.json")
 // --- SHIFT START ---
 function startShift(){
     const money = startMoney.value;
+    const discordId = localStorage.getItem("discordId");
+    const role = localStorage.getItem("role");
 
     if(!money){
         showToast("Podaj środki");
+        return;
+    }
+
+    if(!discordId){
+        showToast("Ustaw Discord ID");
+        return;
+    }
+
+    if(!role){
+        showToast("Wybierz rangę");
         return;
     }
 
