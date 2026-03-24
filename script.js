@@ -358,5 +358,12 @@ function showToast(msg){
     },2000);
 }
 
+customPrice.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){
+        accept();
+        searchBox.focus();
+    }
+});
+
 // INIT
 renderHistory();
