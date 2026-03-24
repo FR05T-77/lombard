@@ -41,6 +41,11 @@ function startShift(){
     shiftActive = true;
     startTime = Date.now();
 
+    // 🔥 SAVE
+    localStorage.setItem("shiftActive", "1");
+    localStorage.setItem("shiftStart", startTime);
+    localStorage.setItem("shiftMoney", money);
+
     startModal.style.display = "none";
     clock.style.display = "block";
 
@@ -207,7 +212,6 @@ function resetCart(){
 // --- ACCEPT ---
 async function accept(){
 
-    // 🔥 BLOKADA BEZ ZMIANY
     if(!shiftActive){
         showToast("Najpierw rozpocznij zmianę");
         return;
@@ -296,9 +300,14 @@ async function endShift(){
     });
 
     localStorage.removeItem("h");
+
+    // 🔥 CLEAR SHIFT
+    localStorage.removeItem("shiftActive");
+    localStorage.removeItem("shiftStart");
+    localStorage.removeItem("shiftMoney");
+
     renderHistory();
 
-    // 🔥 RESET ZMIANY
     clearInterval(clockInterval);
     clock.style.display = "none";
     startModal.style.display = "flex";
@@ -382,5 +391,19 @@ customPrice.addEventListener("keydown", (e)=>{
         searchBox.focus();
     }
 });
+
+// 🔥 RESTORE SHIFT AFTER RELOAD
+const savedShift = localStorage.getItem("shiftActive");
+const savedStart = localStorage.getItem("shiftStart");
+
+if(savedShift && savedStart){
+    shiftActive = true;
+    startTime = Number(savedStart);
+
+    startModal.style.display = "none";
+    clock.style.display = "block";
+
+    startClock();
+}
 
 renderHistory();
