@@ -66,6 +66,11 @@ function startShift(){
     localStorage.setItem("shiftMoney", money);
     localStorage.setItem("shiftOwn", shiftOwn ? "1" : "0");
 
+    // 🔥 Ustaw datę startu tygodnia jeśli jeszcze nie ma
+    if(!localStorage.getItem("weeklyStart")){
+        localStorage.setItem("weeklyStart", new Date().toLocaleDateString("pl-PL"));
+    }
+
     startModal.style.display = "none";
     clock.style.display = "block";
 
@@ -337,6 +342,9 @@ async function endShift(){
         commissions
     });
 
+    // 🔥 ZAPISZ ZMIANĘ DO TYGODNIOWYCH DANYCH
+    saveShiftToWeekly(data);
+
     localStorage.removeItem("h");
 
     // 🔥 CLEAR SHIFT
@@ -358,6 +366,83 @@ async function endShift(){
     updateFinance();
 
     showToast("Zmiana zakończona");
+}
+
+// 🔥 ZAPIS ZMIANY DO TYGODNIOWEGO MAGAZYNU
+function saveShiftToWeekly(shiftTransactions){
+    const role = localStorage.getItem("role");
+    const discordId = localStorage.getItem("discordId");
+    const percent = commissions[role] || 0;
+
+    let totalBuy = 0, totalSell = 0, totalFinal = 0, totalProfit = 0, totalCommission = 0;
+    let combinedItems = {};
+
+    shiftTransactions.forEach(t => {
+        totalBuy += t.buyTotal;
+        totalSell += t.sellTotal;
+        totalFinal += (t.final || t.sellTotal);
+
+        const profitSingle = t.sellTotal - (t.final || t.sellTotal);
+        totalCommission += Math.round((profitSingle * percent) / 100);
+
+        (t.items || []).forEach(i => {
+            combinedItems[i.name] = (combinedItems[i.name] || 0) + i.qty;
+        });
+    });
+
+    totalProfit = totalSell - totalFinal;
+
+    const shiftSummary = {
+        discordId: discordId || "unknown",
+        role: role || "Brak",
+        date: new Date().toLocaleString("pl-PL"),
+        totalBuy,
+        totalSell,
+        totalFinal,
+        profit: totalProfit,
+        commission: totalCommission,
+        items: combinedItems
+    };
+
+    const weekly = JSON.parse(localStorage.getItem("weekly") || "[]");
+    weekly.push(shiftSummary);
+    localStorage.setItem("weekly", JSON.stringify(weekly));
+
+    updateWeeklyCounter();
+}
+
+// 🔥 AKTUALIZACJA LICZNIKA ZMIAN W TYGODNIU
+function updateWeeklyCounter(){
+    const weekly = JSON.parse(localStorage.getItem("weekly") || "[]");
+    const el = document.getElementById("weeklyCount");
+    if(el) el.innerText = weekly.length;
+}
+
+// 🔥 WYŚLIJ TYGODNIOWE PODSUMOWANIE
+async function sendWeeklySummary(){
+    const weekly = JSON.parse(localStorage.getItem("weekly") || "[]");
+
+    if(!weekly.length){
+        showToast("Brak danych tygodniowych");
+        return;
+    }
+
+    const fromDate = localStorage.getItem("weeklyStart") || "?";
+    const toDate = new Date().toLocaleDateString("pl-PL");
+
+    try {
+        await sendWeeklyWebhook({ weeklyData: weekly, fromDate, toDate });
+
+        // Potwierdź i zresetuj tydzień
+        localStorage.removeItem("weekly");
+        localStorage.removeItem("weeklyStart");
+
+        updateWeeklyCounter();
+        showToast("✔ Podsumowanie tygodniowe wysłane!");
+    } catch(err){
+        console.error(err);
+        showToast("❌ Błąd wysyłania podsumowania");
+    }
 }
 
 // --- HISTORY ---
@@ -464,3 +549,4 @@ if(savedShift && savedStart){
 }
 
 renderHistory();
+updateWeeklyCounter();

@@ -327,3 +327,37 @@ td:last-child, th:last-child {
 #historyList {
     padding-bottom: 100px;
 }
+
+/* 🔥 PRZYCISK TYGODNIOWEGO PODSUMOWANIA */
+.weekly-btn {
+    margin-top: 8px;
+    width: 100%;
+    background: linear-gradient(135deg, #1a3a1a, #2a4a2a);
+    border: 1px solid #3a6a3a;
+    color: #6fcf6f;
+    font-weight: bold;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.weekly-btn:hover {
+    background: linear-gradient(135deg, #2a4a2a, #3a5a3a);
+}
+
+/* 🔥 BADGE Z LICZBĄ ZMIAN */
+.weekly-badge {
+    background: #4caf50;
+    color: #000;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+}
