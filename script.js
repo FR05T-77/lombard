@@ -72,7 +72,9 @@ async function startShift(){
     }
 
     startModal.style.display = "none";
-    clock.style.display = "block";
+    document.querySelectorAll("#clock").forEach(el => el.style.display = "block");
+    const statusBar = document.getElementById("shiftStatusBar");
+    if(statusBar) statusBar.style.display = "flex";
 
     startClock();
 
@@ -94,12 +96,11 @@ async function startShift(){
 function startClock(){
     clockInterval = setInterval(()=>{
         const diff = Date.now() - startTime;
-
         const h = String(Math.floor(diff/3600000)).padStart(2,"0");
         const m = String(Math.floor(diff/60000)%60).padStart(2,"0");
         const s = String(Math.floor(diff/1000)%60).padStart(2,"0");
-
-        clock.innerText = `${h}:${m}:${s}`;
+        const txt = `${h}:${m}:${s}`;
+        document.querySelectorAll("#clock").forEach(el => el.innerText = txt);
     },1000);
 }
 
@@ -364,7 +365,9 @@ async function endShift(){
     renderHistory();
 
     clearInterval(clockInterval);
-    clock.style.display = "none";
+    document.querySelectorAll("#clock").forEach(el => el.style.display = "none");
+    const sb2 = document.getElementById("shiftStatusBar");
+    if(sb2) sb2.style.display = "none";
     startModal.style.display = "flex";
     shiftActive = false;
 
@@ -550,7 +553,9 @@ if(savedShift && savedStart){
     }
 
     startModal.style.display = "none";
-    clock.style.display = "block";
+    document.querySelectorAll("#clock").forEach(el => el.style.display = "block");
+    const sb = document.getElementById("shiftStatusBar");
+    if(sb) sb.style.display = "flex";
 
     startClock();
     updateFinance();

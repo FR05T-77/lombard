@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lombard — Kalkulator</title>
+<title>Lombard POS</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -14,14 +14,23 @@
   <!-- ══════════════════════════════════════════════ MAIN -->
   <div class="main">
 
-    <div style="display:flex; align-items:center; justify-content:space-between;">
-      <h2>KALKULATOR</h2>
+    <!-- Header -->
+    <div class="main-header">
+      <div class="logo">
+        <div class="logo-icon">L</div>
+        <span class="logo-text">Lombard POS</span>
+      </div>
+      <div class="shift-status" id="shiftStatusBar" style="display:none;">
+        <span class="status-dot"></span>
+        <span>ZMIANA AKTYWNA —</span>
+        <span id="clock" style="display:none;">00:00:00</span>
+      </div>
     </div>
 
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="left">
-        <button onclick="openSearch()">＋ Dodaj produkt</button>
+        <button class="btn-primary" onclick="openSearch()">+ Dodaj</button>
         <button onclick="accept()">✓ Akceptuj</button>
       </div>
       <div class="right">
@@ -29,38 +38,42 @@
       </div>
     </div>
 
-    <!-- Szukaj -->
-    <input id="searchBox" placeholder="Szukaj produktu..." style="display:none;">
+    <!-- Search -->
+    <div class="search-wrap">
+      <input id="searchBox" placeholder="Szukaj produktu..." style="display:none; padding-left:40px;">
+    </div>
     <div id="results"></div>
     <input id="qtyBox" placeholder="Podaj ilość..." style="display:none;">
 
     <!-- Cart -->
-    <div class="section-title">Koszyk</div>
-    <table id="cart">
-      <thead>
-        <tr>
-          <th>Produkt</th>
-          <th>Ilość</th>
-          <th>Cena jedn.</th>
-          <th>Suma</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="sec-label">Koszyk</div>
+    <div class="tbl-wrap">
+      <table id="cart">
+        <thead>
+          <tr>
+            <th>Produkt</th>
+            <th>Ilość</th>
+            <th>Cena jedn.</th>
+            <th>Suma</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
     <!-- Totals -->
     <div class="total">
       <div>
-        <span class="total-label">💸 Cena Lombard</span>
+        <div class="total-label">💸 Lombard</div>
         <span id="sellTotal">0</span>
       </div>
       <div>
-        <span class="total-label">💰 Cena Skup</span>
+        <div class="total-label">💰 Skup</div>
         <span id="buyTotal">0</span>
       </div>
       <div>
-        <span class="total-label">💵 Cena Sprzedaży</span>
+        <div class="total-label">💵 Cena sprzedaży</div>
         <input id="customPrice" placeholder="0">
       </div>
     </div>
@@ -72,7 +85,7 @@
 
     <div class="side-header">
       <div class="side-top">
-        <h2>TRANSAKCJE</h2>
+        <h2>Transakcje</h2>
         <div id="clock" style="display:none;">00:00:00</div>
       </div>
       <button class="danger" onclick="endShift()">✕ Zakończ zmianę</button>
@@ -80,10 +93,9 @@
 
     <div id="historyList"></div>
 
-    <!-- Finance -->
     <div class="finance">
       <button class="weekly-btn" onclick="sendWeeklySummary()">
-        📊 Podsumowanie tygodniowe
+        ▸ Podsumowanie tygodniowe
         <span class="weekly-badge" id="weeklyCount">0</span>
       </button>
       <div class="finance-row">
@@ -101,17 +113,17 @@
   </div>
 </div>
 
-<!-- ⚙️ SETTINGS GEAR -->
+<!-- ⚙️ GEAR -->
 <div id="settingsBtn">⚙️</div>
 
 <!-- ══════════ MODAL: USTAWIENIA -->
 <div class="modal" id="settingsModal">
   <div class="modal-box">
     <h3>Ustawienia</h3>
-    <label style="font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block;">Discord ID</label>
+    <label class="field-label">Discord ID</label>
     <input id="discordIdInput" placeholder="Twoje Discord ID">
     <br><br>
-    <label style="font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block;">Ranga</label>
+    <label class="field-label">Ranga</label>
     <select id="roleSelect"></select>
     <br><br>
     <button onclick="saveSettings()" style="width:100%;">Zapisz ustawienia</button>
@@ -122,7 +134,7 @@
 <div class="modal" id="startModal" style="display:flex;">
   <div class="modal-box">
     <h3>Rozpocznij zmianę</h3>
-    <label style="font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block;">Środki startowe</label>
+    <label class="field-label">Środki startowe</label>
     <input id="startMoney" placeholder="0" value="0">
     <br><br>
     <label>
@@ -131,7 +143,7 @@
     </label>
     <br><br>
     <button onclick="settingsModal.style.display='flex'">⚙️ Ustawienia</button>
-    <button onclick="startShift()">▶ Rozpocznij zmianę</button>
+    <button class="btn-primary" onclick="startShift()">▶ Rozpocznij zmianę</button>
   </div>
 </div>
 
