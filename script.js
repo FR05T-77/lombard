@@ -23,7 +23,7 @@ fetch("commissions.json")
 });
 
 // --- SHIFT START ---
-function startShift(){
+async function startShift(){
     const money = Number(startMoney.value);
     const discordId = localStorage.getItem("discordId");
     const role = localStorage.getItem("role");
@@ -75,6 +75,20 @@ function startShift(){
     clock.style.display = "block";
 
     startClock();
+
+    // 🔥 AUTO-WYSYŁKA PODSUMOWANIA PRZY STARCIE ZMIANY
+    const weeklyData = JSON.parse(localStorage.getItem("weekly") || "[]");
+    if(weeklyData.length > 0){
+        const fromDate = localStorage.getItem("weeklyStart") || "?";
+        const toDate = new Date().toLocaleDateString("pl-PL");
+
+        try {
+            await sendWeeklyWebhook({ weeklyData, fromDate, toDate });
+            showToast("📊 Wysłano aktualne podsumowanie tygodnia");
+        } catch(err){
+            console.error("Auto-weekly webhook error:", err);
+        }
+    }
 }
 
 function startClock(){
@@ -550,3 +564,35 @@ if(savedShift && savedStart){
 
 renderHistory();
 updateWeeklyCounter();
+
+// 🔥 AUTO-RESET TYGODNIOWEGO CACHE CO NIEDZIELĘ O 19:00
+function checkWeeklyAutoReset(){
+    const now = new Date();
+    const isSundayAfter19 = now.getDay() === 0 && now.getHours() >= 19;
+
+    if(!isSundayAfter19) return;
+
+    // Sprawdź czy już czyściliśmy w tę niedzielę
+    const lastReset = localStorage.getItem("weeklyLastReset");
+    const thisWeekSunday = getThisSundayTimestamp();
+
+    if(!lastReset || Number(lastReset) < thisWeekSunday){
+        localStorage.removeItem("weekly");
+        localStorage.removeItem("weeklyStart");
+        localStorage.setItem("weeklyLastReset", Date.now().toString());
+        updateWeeklyCounter();
+        console.log("✔ Tygodniowy cache wyczyszczony automatycznie (niedziela 19:00)");
+    }
+}
+
+function getThisSundayTimestamp(){
+    const now = new Date();
+    const day = now.getDay(); // 0 = niedziela
+    const diff = day === 0 ? 0 : 7 - day;
+    const sunday = new Date(now);
+    sunday.setDate(now.getDate() + diff - (day === 0 ? 0 : 0));
+    sunday.setHours(19, 0, 0, 0);
+    return sunday.getTime();
+}
+
+checkWeeklyAutoReset();
