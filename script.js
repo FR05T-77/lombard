@@ -202,7 +202,8 @@ function add(name,qty){
     const buy = Number(products[name].buy);
     const sell = Number(products[name].sell);
 
-    const r = cart.insertRow();
+    const tbody = cart.querySelector("tbody");
+    const r = tbody.insertRow();
 
     r.insertCell().innerText = name;
     r.insertCell().innerText = qty;
@@ -230,8 +231,8 @@ function update(){
     let totalBuy = 0;
     let totalSell = 0;
 
-    [...cart.rows].forEach((r,i)=>{
-        if(i===0) return;
+    const tbody = cart.querySelector("tbody");
+    [...(tbody ? tbody.rows : [])].forEach(r=>{
         totalBuy += Number(r.cells[3].innerText);
         totalSell += Number(r.dataset.sell);
     });
@@ -243,14 +244,8 @@ function update(){
 }
 
 function resetCart(){
-    cart.innerHTML = `
-    <tr>
-        <th>Produkt</th>
-        <th>Ilość</th>
-        <th>Cena</th>
-        <th>Suma</th>
-        <th></th>
-    </tr>`;
+    const tbody = cart.querySelector("tbody");
+    if(tbody) tbody.innerHTML = "";
     update();
 }
 
@@ -265,9 +260,8 @@ async function accept(){
     let list = "";
     let items = [];
 
-    [...cart.rows].forEach((r,i)=>{
-        if(i===0) return;
-
+    const tbody = cart.querySelector("tbody");
+    [...(tbody ? tbody.rows : [])].forEach(r=>{
         const name = r.cells[0].innerText;
         const qty = Number(r.cells[1].innerText);
 

@@ -2,7 +2,8 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Kalkulator Lombard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lombard — Kalkulator</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -10,121 +11,136 @@
 
 <div class="app">
 
-<div class="main">
-<h2>Kalkulator</h2>
+  <!-- ══════════════════════════════════════════════ MAIN -->
+  <div class="main">
 
-<div class="toolbar">
-  <div class="left">
-    <button onclick="openSearch()">Dodaj</button>
-    <button onclick="accept()">Akceptuj</button>
-  </div>
-
-  <div class="right">
-    <button onclick="resetCart()">Reset koszyka</button>
-  </div>
-</div>
-
-<input id="searchBox" placeholder="Szukaj..." style="display:none;">
-<div id="results"></div>
-
-<input id="qtyBox" placeholder="Ilość" style="display:none;">
-
-<table id="cart">
-<tr>
-<th>Produkt</th>
-<th>Ilość</th>
-<th>Cena</th>
-<th>Suma</th>
-<th></th>
-</tr>
-</table>
-
-<div class="total">
-    <div>💸 Lombard: <b><span id="sellTotal">0</span>$</b></div>
-    <div>💰 Skup: <b><span id="buyTotal">0</span>$</b></div>
-    <div>
-        💵 Cena:
-        <input id="customPrice" placeholder="500">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <h2>KALKULATOR</h2>
     </div>
-</div>
 
-</div>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="left">
+        <button onclick="openSearch()">＋ Dodaj produkt</button>
+        <button onclick="accept()">✓ Akceptuj</button>
+      </div>
+      <div class="right">
+        <button onclick="resetCart()">↺ Reset koszyka</button>
+      </div>
+    </div>
 
-<div class="side">
+    <!-- Szukaj -->
+    <input id="searchBox" placeholder="Szukaj produktu..." style="display:none;">
+    <div id="results"></div>
+    <input id="qtyBox" placeholder="Podaj ilość..." style="display:none;">
 
-<div class="side-header">
-  <div class="side-top">
-    <h2>Transakcje</h2>
-    <div id="clock" style="display:none;">00:00:00</div>
+    <!-- Cart -->
+    <div class="section-title">Koszyk</div>
+    <table id="cart">
+      <thead>
+        <tr>
+          <th>Produkt</th>
+          <th>Ilość</th>
+          <th>Cena jedn.</th>
+          <th>Suma</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="total">
+      <div>
+        <span class="total-label">💸 Cena Lombard</span>
+        <span id="sellTotal">0</span>
+      </div>
+      <div>
+        <span class="total-label">💰 Cena Skup</span>
+        <span id="buyTotal">0</span>
+      </div>
+      <div>
+        <span class="total-label">💵 Cena Sprzedaży</span>
+        <input id="customPrice" placeholder="0">
+      </div>
+    </div>
+
   </div>
 
-  <button class="danger" onclick="endShift()">Zakończ zmianę</button>
-  <button class="weekly-btn" onclick="sendWeeklySummary()">
-    📊 Podsumowanie tygodniowe
-    <span class="weekly-badge" id="weeklyCount">0</span>
-  </button>
-</div>
+  <!-- ══════════════════════════════════════════════ SIDE -->
+  <div class="side">
 
-<div id="historyList"></div>
-<div class="finance">
-  <div class="finance-box">
-    🏦 Lombard: <span id="lombardCash">0$</span>
+    <div class="side-header">
+      <div class="side-top">
+        <h2>TRANSAKCJE</h2>
+        <div id="clock" style="display:none;">00:00:00</div>
+      </div>
+      <button class="danger" onclick="endShift()">✕ Zakończ zmianę</button>
+    </div>
+
+    <div id="historyList"></div>
+
+    <!-- Finance -->
+    <div class="finance">
+      <button class="weekly-btn" onclick="sendWeeklySummary()">
+        📊 Podsumowanie tygodniowe
+        <span class="weekly-badge" id="weeklyCount">0</span>
+      </button>
+      <div class="finance-row">
+        <div class="finance-box">
+          <div class="fb-label">🏦 Lombard</div>
+          <span id="lombardCash">0$</span>
+        </div>
+        <div class="finance-box">
+          <div class="fb-label">💼 Sprzedawca</div>
+          <span id="workerCash">0$</span>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <div class="finance-box">
-    💼 Sprzedawca: <span id="workerCash">0$</span>
-  </div>
-</div>
 </div>
 
-</div>
-
-<!-- ⚙️ SETTINGS -->
+<!-- ⚙️ SETTINGS GEAR -->
 <div id="settingsBtn">⚙️</div>
 
+<!-- ══════════ MODAL: USTAWIENIA -->
 <div class="modal" id="settingsModal">
   <div class="modal-box">
-    <h3>Ustaw Discord ID</h3>
-    <input id="discordIdInput">
-
+    <h3>Ustawienia</h3>
+    <label style="font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block;">Discord ID</label>
+    <input id="discordIdInput" placeholder="Twoje Discord ID">
     <br><br>
-
-    <h3>Wybierz rangę</h3>
+    <label style="font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block;">Ranga</label>
     <select id="roleSelect"></select>
-
     <br><br>
-    <button onclick="saveSettings()">Zapisz</button>
+    <button onclick="saveSettings()" style="width:100%;">Zapisz ustawienia</button>
   </div>
 </div>
 
-<!-- 🔥 MODAL STARTU ZMIANY -->
+<!-- ══════════ MODAL: START ZMIANY -->
 <div class="modal" id="startModal" style="display:flex;">
   <div class="modal-box">
     <h3>Rozpocznij zmianę</h3>
-
-    <input id="startMoney" placeholder="Środki startowe" value=0>
-
+    <label style="font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block;">Środki startowe</label>
+    <input id="startMoney" placeholder="0" value="0">
     <br><br>
-
     <label>
       <input type="checkbox" id="ownMoney">
       Środki własne?
     </label>
-
     <br><br>
-
     <button onclick="settingsModal.style.display='flex'">⚙️ Ustawienia</button>
-
-    <br><br>
-
-    <button onclick="startShift()">Rozpocznij zmianę</button>
+    <button onclick="startShift()">▶ Rozpocznij zmianę</button>
   </div>
 </div>
 
+<!-- ══════════ MODAL: SZCZEGÓŁY -->
 <div class="modal" id="modal">
   <div id="modalContent"></div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script src="webhooks.js"></script>
