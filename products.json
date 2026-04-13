@@ -45,11 +45,11 @@
   "Pilot RGB": { "buy": 150, "sell": 156 },
   "Nożyce ogrodnicze": { "buy": 75, "sell": 78 },
 
-  "Stara moneta": { "buy": 800, "sell": 834 },
-  "Okolicznościowa moneta": { "buy": 800, "sell": 834 },
-  "Srebrna moneta": { "buy": 800, "sell": 834 },
-  "Złota moneta": { "buy": 800, "sell": 834 },
-  "Platynowa moneta": { "buy": 1100, "sell": 1144 },
+  "Stara moneta": { "buy": 325, "sell": 338 },
+  "Okolicznościowa moneta": { "buy": 330 "sell": 343 },
+  "Srebrna moneta": { "buy": 335, "sell": 348 },
+  "Złota moneta": { "buy": 345, "sell": 359 },
+  "Platynowa moneta": { "buy": 345, "sell": 359 },
 
   "Zepsuty telefon": { "buy": 35, "sell": 36 },
   "Zepsuty instax": { "buy": 150, "sell": 156 },
